@@ -1,10 +1,14 @@
 package com.example.demo.controllers;
 
+import java.util.Set;
+
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dtos.UserDto;
@@ -21,8 +25,12 @@ public class UserController {
 
     // @RequestMapping("/users")
     @GetMapping
-    public Iterable<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
+    public Iterable<UserDto> getAllUsers(
+            @RequestParam(required = false, defaultValue = "id") String sort) {
+        if (!Set.of("id", "name", "email").contains(sort)) {
+            throw new IllegalArgumentException("Invalid sort parameter");
+        }
+        return userRepository.findAll(Sort.by(sort).descending()).stream()
                 .map(user -> new UserDto(user.getId(), user.getName(), user.getEmail()))
                 .toList();
     }
