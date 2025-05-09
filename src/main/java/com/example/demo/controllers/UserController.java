@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,5 +51,16 @@ public class UserController {
         // return new ResponseEntity<>(user, HttpStatus.OK);
         var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
         return ResponseEntity.ok(userDto);
+    }
+
+    @PostMapping
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto data) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(data);
+        // var user = new User();
+        // user.setName(name);
+        // user.setEmail(email);
+        // userRepository.save(user);
+        // var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
+        // return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 }
