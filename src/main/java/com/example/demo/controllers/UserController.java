@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.dtos.ChangePasswordRequest;
 import com.example.demo.dtos.UserDto;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.UserRepository;
@@ -38,7 +39,7 @@ public class UserController {
             throw new IllegalArgumentException("Invalid sort parameter");
         }
         return userRepository.findAll(Sort.by(sort).descending()).stream()
-                .map(user -> new UserDto(user.getId(), user.getName(), user.getEmail()))
+                .map(user -> new UserDto(user.getId(), user.getName(), user.getEmail(), user.getPassword()))
                 .toList();
     }
 
@@ -51,7 +52,7 @@ public class UserController {
         }
 
         // return new ResponseEntity<>(user, HttpStatus.OK);
-        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
+        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail(), user.getPassword());
         return ResponseEntity.ok(userDto);
     }
 
@@ -75,7 +76,7 @@ public class UserController {
         user.setName(data.getName());
         user.setEmail(data.getEmail());
         userRepository.save(user);
-        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
+        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail(), user.getPassword());
         return ResponseEntity.ok(userDto);
     }
 
@@ -88,4 +89,20 @@ public class UserController {
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/change-password")
+    public ResponseEntity<Void> changePassword(@PathVariable Long id, @RequestBody ChangePasswordRequest request) {
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!user.getPassword().equals(request.getOldPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        user.setPassword(request.getNewPassword()); // Assuming User entity has a setPassword method
+        userRepository.save(user);
+        return ResponseEntity.noContent().build();
+    }
+
 }
