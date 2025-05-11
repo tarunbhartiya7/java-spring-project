@@ -17,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dtos.ChangePasswordRequest;
+import com.example.demo.dtos.RegisterUserRequest;
 import com.example.demo.dtos.UserDto;
 import com.example.demo.entities.User;
 import com.example.demo.repositories.UserRepository;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -56,15 +58,24 @@ public class UserController {
         return ResponseEntity.ok(userDto);
     }
 
+    // @PostMapping
+    // public ResponseEntity<UserDto> createUser(@RequestBody UserDto data) {
+    // return ResponseEntity.status(HttpStatus.CREATED).body(data);
+    // // var user = new User();
+    // // user.setName(name);
+    // // user.setEmail(email);
+    // // userRepository.save(user);
+    // // var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
+    // // return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+    // }
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto data) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(data);
-        // var user = new User();
-        // user.setName(name);
-        // user.setEmail(email);
-        // userRepository.save(user);
-        // var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
-        // return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+    public ResponseEntity<Void> createUser(@Valid @RequestBody RegisterUserRequest request) {
+        var user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword()); // Assuming User entity has a setPassword method
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
